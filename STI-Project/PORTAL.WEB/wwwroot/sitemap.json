@@ -1,0 +1,61 @@
+﻿{
+    "Item": [
+        {
+            "Category": "Administration",
+            "MenuItem": [
+                {
+                    "Title": "Application User",
+                    "Controller": "ApplicationUser",
+                    "Action": "Index"
+                },
+                {
+                    "Title": "Application Role",
+                    "Controller": "ApplicationRole",
+                    "Action": "Index"
+                },
+                {
+                    "Title": "Application Permission",
+                    "Controller": "ApplicationPermission",
+                    "Action": "Index"
+                }
+            ]
+        }
+    ],
+  "NavItem": [
+    {
+      "MenuItem": {
+        "Title": "Settings",
+        "Controller": "Settings",
+        "Action": "Index"
+      }
+    },
+    {
+      "MenuItem": {
+        "Title": "Tuition Fees",
+        "Controller": "TuitionFees",
+        "Action": "Index"
+      }
+    },
+    {
+      "MenuItem": {
+        "Title": "Class Schedule",
+        "Controller": "ClassSchedules",
+        "Action": "Index"
+      }
+    },
+    {
+      "MenuItem": {
+        "Title": "Student",
+        "Controller": "Students",
+        "Action": "Index"
+      }
+    },
+    {
+      "MenuItem": {
+        "Title": "OTP",
+        "Controller": "OtpCodes",
+        "Action": "Index"
+      }
+    }
+  ]
+}
