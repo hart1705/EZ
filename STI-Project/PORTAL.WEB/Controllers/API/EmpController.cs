@@ -25,9 +25,15 @@ namespace PORTAL.WEB.Controllers.API
             _context = context;
         }
 
-        //[Route("api/Emp/{name}/{position}/{department}/{division}")]
-        [Route("api/Employee/search/{search}")]
-        public IActionResult GetEmployees(string search)
+
+        /// <summary>
+        /// added by Cedric
+        /// 11/10/18
+        /// </summary>
+        /// <param name="search"></param>
+        /// <returns></returns>
+        [Route("api/ez/employee/get_shares_line_manager/{empId}")]
+        public IActionResult GetSharesLineManager(string empId)
         {
             
             if (!ModelState.IsValid)
@@ -35,11 +41,51 @@ namespace PORTAL.WEB.Controllers.API
                 return BadRequest(ModelState);
             }
             var employee = from s in _context.Employee
-                           where (EF.Functions.Like(s.Employee_Name_English, "%" + search + "%") 
-                           || EF.Functions.Like(s.Position, "%" + search + "%")
-                           || EF.Functions.Like(s.Department, "%" + search + "%")
-                           || EF.Functions.Like(s.Division, "%" + search + "%")
-                           || EF.Functions.Like(s.Emp_ID, "%" + search + "%")) 
+                           where (EF.Functions.Like(s.Line_Manager_No, empId + "%")) 
+                           select s;
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            return new ObjectResult(employee);
+        }
+
+        [Route("api/ez/employee/get_direct_reports/{empId}")]
+        public IActionResult GetDirectReports(string empId)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var employee = from s in _context.Employee
+                           where (EF.Functions.Like(s.Line_Manager_No, empId + "%"))
+                           select s;
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            return new ObjectResult(employee);
+        }
+
+        //[Route("api/Emp/{name}/{position}/{department}/{division}")]
+        [Route("api/ez/employee/search_on_directory/{keyWord}")]
+        public IActionResult GetEmployees(string keyWord)
+        {
+            
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var employee = from s in _context.Employee
+                           where (EF.Functions.Like(s.Employee_Name_English, "%" + keyWord + "%") 
+                           || EF.Functions.Like(s.E_Mail, "%" + keyWord + "%")
+                           || EF.Functions.Like(s.Position, "%" + keyWord + "%")
+                           || EF.Functions.Like(s.Department, "%" + keyWord + "%")
+                           || EF.Functions.Like(s.Division, "%" + keyWord + "%")
+                           || EF.Functions.Like(s.Emp_ID, "%" + keyWord + "%")) 
                            //&& EF.Functions.Equals(s.Termination_Date).Equals(null)
                            select s;
             if (employee == null)
@@ -50,7 +96,7 @@ namespace PORTAL.WEB.Controllers.API
             return new ObjectResult(employee);
         }
 
-        [Route("api/Employee/byname/{name}")]
+        [Route("api/ez/employee/byname/{name}")]
         public IActionResult GetEmployee(string name)
         {
 
