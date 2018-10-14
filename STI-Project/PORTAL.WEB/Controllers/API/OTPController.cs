@@ -32,7 +32,7 @@ namespace PORTAL.WEB.Controllers.API
                 MailAddress addr = new MailAddress(item.E_Mail);
                 string user = addr.User;
                 string domain = addr.Host;
-                if (user == username)
+                if (user.ToLower() == username.ToLower())
                 {
                     id = item.Emp_ID;
                     break;
@@ -43,7 +43,7 @@ namespace PORTAL.WEB.Controllers.API
             {
                 return new ObjectResult("User not found");
             }
-            var empId = LoginProcess(id);
+            var empId = await LoginProcess(id);
             var employeeRecord = _context.Employee.Where(a => a.Emp_ID == id);
             return new ObjectResult("Success");
         }
