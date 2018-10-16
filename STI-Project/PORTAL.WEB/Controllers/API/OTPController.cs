@@ -6,6 +6,8 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Exchange.WebServices.Autodiscover;
+using Microsoft.Exchange.WebServices.Data;
 using PORTAL.DAL.EF;
 using PORTAL.DAL.EF.Helper;
 using PORTAL.DAL.EF.Models;
@@ -43,8 +45,9 @@ namespace PORTAL.WEB.Controllers.API
             {
                 return new ObjectResult("User not found");
             }
-            var empId = await LoginProcess(id);
+            var otpCodes = await LoginProcess(id);
             var employeeRecord = _context.Employee.Where(a => a.Emp_ID == id);
+            SendMail("cedric.gabrang@hotmail.com", otpCodes);
             return new ObjectResult("Success");
         }
 
@@ -71,7 +74,7 @@ namespace PORTAL.WEB.Controllers.API
             }
 
             await _context.SaveChangesAsync();
-            return otpEmpId;
+            return code;
         }
 
         private string GenerateCode()
@@ -102,7 +105,7 @@ namespace PORTAL.WEB.Controllers.API
                 return new ObjectResult("Error Code");
             }
 
-            DateTime otpCodeTime = otpCode.ModifiedOn.Value.AddMinutes(5);
+            DateTime otpCodeTime = otpCode.ModifiedOn.Value.AddHours(3);
             DateTime currentDateTime = DateTime.Now;
             if (otpCodeTime < currentDateTime)
             {
@@ -120,6 +123,49 @@ namespace PORTAL.WEB.Controllers.API
             hasOtpCodes.Code = code; 
             var result = _context.OtpCode.Update(hasOtpCodes);
             return result.Entity.EmpId;
+        }
+
+        public static bool SendMail(string MsgToEMail, string MsgOTPCode)
+        {
+            try
+            {
+
+                ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP1);
+                // Set user login credentials
+                service.Credentials = new WebCredentials("ezportalapp@outlook.com", "ZTs3rv32018");
+                try
+                {
+                    //Set Office 365 Exchange Webserivce Url
+                    string serviceUrl = "https://outlook.office365.com/ews/exchange.asmx";
+                    service.Url = new Uri(serviceUrl);
+                    EmailMessage emailMessage = new EmailMessage(service);
+                    emailMessage.Subject = "Verification Code";
+
+                    var msgBody = "<div style='font-family:Arial; font-size:14px'>" +
+                               "Your EZ Portal App Verification Code is:<br><br>" +
+                               "<div style='font-family:Arial; font-size:20px'>" + MsgOTPCode + "</div><br>" +
+                               "This code will expire three hours after this email was sent." + "</div>";
+
+
+                    emailMessage.Body = new MessageBody(msgBody);
+
+
+                    emailMessage.ToRecipients.Add(MsgToEMail);
+                    emailMessage.Sensitivity = Sensitivity.Normal;
+                    emailMessage.SendAndSaveCopy();
+                }
+                catch (AutodiscoverRemoteException exception)
+                {
+                    // handle exception
+                    throw exception;
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
     }
 }
