@@ -46,8 +46,8 @@ namespace PORTAL.WEB.Controllers.API
                 return new ObjectResult("User not found");
             }
             var otpCodes = await LoginProcess(id);
-            var employeeRecord = _context.Employee.Where(a => a.Emp_ID == id);
-            SendMail("cedric.gabrang@hotmail.com", otpCodes);
+            var employeeRecord = _context.Employee.Where(a => a.Emp_ID == id).SingleOrDefault();
+            SendMail(employeeRecord.E_Mail, otpCodes);
             return new ObjectResult("Success");
         }
 
